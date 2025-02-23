@@ -1,0 +1,101 @@
+managed:
+  cc_enable_arenas: true
+  enabled: true
+  go_package_prefix:
+    default: gitlab.com/Mohsenataei/parand/gen/go/
+    except:
+      - buf.build/envoyproxy/protoc-gen-validate
+      - buf.build/googleapis/googleapis
+      - buf.build/grpc-ecosystem/grpc-gateway
+plugins:
+  - name: doc
+    opt:
+      - markdown
+      - PROTOCOL_DOCUMENTATION.md
+      # - source_relative
+      # - :exclude/*
+    out: gen/md/
+
+  - name: go
+    opt:
+      - paths=source_relative
+    out: gen/go/
+  - name: go-grpc
+    opt:
+      - paths=source_relative
+      - require_unimplemented_servers=false
+    out: gen/go/
+  - name: go-grpc-mock
+    opt:
+      - paths=source_relative
+    out: gen/go/
+  - name: grpc-gateway
+    opt:
+      - paths=source_relative
+      # - allow_delete_body=false # "unless set # HTTP DELETE methods may not have a body
+      # - allow_patch_feature=true # "determines whether to use PATCH feature involving update masks (using google.protobuf.FieldMask).
+      # - allow_repeated_fields_in_body=true # "allows to use repeated field in `body` and `response_body` field of `google.api.http` annotation option. DEPRECATED: the value is ignored and always behaves as `true`.
+      # - generate_unbound_methods=false # "generate proxy methods even for RPC methods that have no HttpRule annotation
+      # - grpc_api_configuration="" # "path to gRPC API Configuration in YAML format
+      # - omit_package_doc=false # "if true, no package comment will be included in the generated code
+      # - register_func_suffix="Handler" # "used to construct names of generated Register*<Suffix> methods.
+      # - repeated_path_param_separator="csv" # "configures how repeated fields should be split. Allowed values are `csv`, `pipes`, `ssv` and `tsv`.
+      # - request_context=true # "determine whether to use http.Request's context or not
+      # - standalone=false # "generates a standalone gateway package, which imports the target service package
+      # - version=false # "print the current version
+      # - warn_on_unbound_methods=false # "emit a warning message if an RPC method has no HttpRule annotation
+    out: gen/go/
+  - name: openapiv2
+    opt:
+      # - allow_delete_body=false # unless set, HTTP DELETE methods may not have a body
+      - allow_merge=true # if set, generation one OpenAPI file out of multiple protos
+      # - allow_patch_feature # whether to hide update_mask fields in PATCH requests from the generated swagger file.
+      # - allow_repeated_fields_in_body=true # allows to use repeated field in `body` and `response_body` field of `google.api.http` annotation option. DEPRECATED: the value is ignored and always behaves as `true`.
+      # - disable_default_errors=false # if set, disables generation of default errors. This is useful if you have defined custom error handling
+      # - disable_default_responses=false # if set, disables generation of default responses. Useful if you have to support custom response codes that are not 200.
+      # - disable_service_tags=false # if set, disables generation of service tags. This is useful if you do not want to expose the names of your backend grpc services.
+      # - enums_as_ints=false # whether to render enum values as integers, as opposed to string values
+      # - file="-" # where to load data from
+      # - fqn_for_openapi_name=false # if set, the object's OpenAPI names will use the fully qualified names from the proto definition (ie my.package.MyMessage.MyInnerMessage). DEPRECATED: prefer `openapi_naming_strategy=fqn`
+      # - generate_unbound_methods=false # generate swagger metadata even for RPC methods that have no HttpRule annotation
+      # - grpc_api_configuration="" # path to file which describes the gRPC API Configuration in YAML format
+      # - ignore_comments # if set, all protofile comments are excluded from output
+      # - import_prefix="" # prefix to be added to go package paths for imported proto files
+      # - include_package_in_tags=false # if unset, the gRPC service name is added to the `Tags` field of each operation. If set and the `package` directive is shown in the proto file, the package name will be prepended to the service name
+      # - json_names_for_fields=true # if disabled, the original proto name will be used for generating OpenAPI definitions
+      # - merge_file_name=apidocs # target OpenAPI file name prefix after merge
+      # - omit_enum_default_value=false # if set, omit default enum value
+      # - openapi_configuration="" # path to file which describes the OpenAPI Configuration in YAML format
+      # - openapi_naming_strategy="" # use the given OpenAPI naming strategy. Allowed values are `legacy`, `fqn`, `simple`. If unset, either `legacy` or `fqn` are selected, depending on the value of the `fqn_for_openapi_name` flag
+      # - output_format=string(genopenapi.FormatJSON), output content format. Allowed values are: `genopenapi.FormatJSON`, `genopenapi.FormatYAML`
+      # - proto3_optional_nullable=false # whether Proto3 Optional fields should be marked as x-nullable
+      # - recursive_depth=1000 # maximum recursion count allowed for a field type
+      # - repeated_path_param_separator=csv # configures how repeated fields should be split. Allowed values are `csv`, `pipes`, `ssv` and `tsv`
+      # - simple_operation_ids=false # whether to remove the service prefix in the operationID generation. Can introduce duplicate operationIDs, use with caution.
+      # - use_allof_for_refs=false # if set, will use allOf as container for $ref to preserve same-level properties.
+      # - use_go_templates=false # if set, you can use Go templates in protofile comments
+      # - version=false # print the current version
+      # - visibility_restriction_selectors="" # list of `google.api.VisibilityRule` visibility labels to include in the generated output when a visibility annotation is defined. Repeat this option to supply multiple values. Elements without visibility annotations are unaffected by this setting.
+    out: gen/openapiv2/
+  - name: validate-go
+    opt:
+      - paths=source_relative
+    out: gen/go/
+
+  - out: gen/cpp/
+    plugin: buf.build/bufbuild/validate-cpp:v0.10.1
+  - opt:
+      # - additional_header_includes=std::vector<std::string>
+      - generate_mock_code=true
+      # - gmock_search_path=std::string
+      # - grpc_search_path=std::string
+      - include_import_headers=true
+      - message_header_extension=.pb.h
+      # - services_namespace=std::string
+      # - use_system_headers=bool
+    out: gen/cpp/
+    plugin: buf.build/grpc/cpp:v1.53.0
+  - out: gen/cpp/
+    plugin: buf.build/protocolbuffers/cpp:v22.2
+
+version: v1
